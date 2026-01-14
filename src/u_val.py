@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 
-# m to mm conversion
+# mm to m conversion
 conv = 1/1000
 debug = False
 

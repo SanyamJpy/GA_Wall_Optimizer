@@ -1,6 +1,7 @@
 # python main.py
 
 from src.dataBase_loader import getDataBase
+from src.mutation import mutate_child
 from src.wall_assembly import wallAssembly
 from src.u_val import calc_U_val_Gwp_total
 from src.fitness import fitness
@@ -204,7 +205,7 @@ def selectParents(all_fitness_vals, walls_list, allWalls_t, gen=0):
     this_gen_fitness_vals = all_fitness[gen]
 
     # no of parents to select
-    num_parents = 3
+    num_parents = 2
 
     # get the top 3 max fitness values
     sorted_fitness = sorted(this_gen_fitness_vals.items(), key= lambda x: x[1], reverse=True)
@@ -286,7 +287,7 @@ parents, parentWalls_t = selectParents(init_walls_fitness, init_walls_list, init
 # print(parents[0][0])
 
 
-def crossOver(parents, parentWalls_t, idx=0):
+def crossOver(parents, parentWalls_t, idx=0, mutation_rate=0.2):
 
     """
     func to perform crossover between 2 parents and create a child wall assembly
@@ -295,6 +296,11 @@ def crossOver(parents, parentWalls_t, idx=0):
     "parents": list of parent wall assemblies (list of lists of dicts)
     "parentWalls_t": list of thicknesses of parent wall assemblies (list of lists of dicts)
     "idx": index of the child wall assembly (for debugging purposes)
+    "mutation_rate": float between 0 and 1 (eg: 0.2 = 20% mutation)
+
+    RETURNS:
+    "mutated_child": mutated child wall assembly (list of material dicts)
+    "mutated_child_t": mutated thicknesses of the child wall assembly (list of dicts)
     """
     
     # lists to store child mats and their thickness
@@ -322,18 +328,28 @@ def crossOver(parents, parentWalls_t, idx=0):
         child.append(mat)
         child_t.append(thick)
 
+    " Perform mutation"
+    mutated_child, mutated_child_t = mutate_child(dataBase, child, child_t, mutation_rate)
 
-    # # debug
+    # # debug------------------------------------------------------------------
+    print("Before Mutation:")
     # print(f"\nChild Wall-{idx}:")
-    print("\n")
-    print("child ->", child[0])
+    for i, layer in enumerate(child):
+        print(f"- {layer['name']} with thickness {child_t[i][layer['name']]}m")
+
+    print("\n")    
+    print("After Mutation:")
+    for i, layer in enumerate(mutated_child):
+        print(f"- {layer['name']} with thickness {mutated_child_t[i][layer['name']]}m")
+    # print("\n")
+    # print("child ->", child)
     # print("child_T ->", child_t)
 
     # for i, layer in enumerate(child):
     #     print(f"- {layer['name']} with thickness {child_t[i][layer['name']]}m")
 
     "list of dicts"
-    return child, child_t
+    return mutated_child, mutated_child_t
 
 
 
@@ -361,7 +377,7 @@ max_attempts = population * 50  # to avoid infinite loop
 while len(childWalls_list) < population and i < max_attempts:
 
     # perform crossover to create child wall
-    childWall, childWall_t = crossOver(parents, parentWalls_t, len(childWalls_list))
+    childWall, childWall_t = crossOver(parents, parentWalls_t, mutation_rate=0.4)
     # get wall signature
     wall_signature = wall_to_string(childWall, childWall_t)
 

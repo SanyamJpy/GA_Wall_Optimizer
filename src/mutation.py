@@ -11,6 +11,9 @@ logging.basicConfig(
 # load dataBase
 dataBase = getDataBase()
 
+# conversion mm to m
+conv = 1/1000
+
 # ==================================================================================
 
 def find_mat_layer(db, random_mat):
@@ -75,48 +78,82 @@ def get_mats_of_layer(db, layer_key):
     return all_mats
 
 
-def get_new_material(dataBase, random_mat):
+def mutate_child(dataBase, child, child_t, mutation_rate=0.2):
     """
-    func to get a new material from the same layer as the material to be mutated
+    Mutates a random no of materials in the child wall assembly based on the mutation rate
 
     'INPUTS':
     "dataBase": dataBase
-    "random_mat": material to be mutated
-    "layer_key": layer of the material to be mutated
+    "child": child wall assembly (list of material dicts)
+    "child_t": thicknesses of the child wall assembly (list of dicts)
+    "mutation_rate": float between 0 and 1 (eg: 0.2 = 20% mutation)
 
     'RETURNS':
-    "new_mat": new material(dict) from the same layer: {...}
+    "mutated_child": mutated child wall assembly (list of material dicts)
+    "mutated_child_t": mutated thicknesses of the child wall assembly (list of dicts)
     """
 
-    # get the layer_key of the material to be mutated
-    layer_key, mat = find_mat_layer(dataBase, random_mat)
+    # make copies of the child and child_t to mutate
+    mutated_child = child[:]
+    mutated_child_t = child_t[:]
 
-    # get all the materials of that layer
-    mats = get_mats_of_layer(dataBase, layer_key)
+    # no of layers
+    num_layers = len(mutated_child)
 
-    for mat in mats:
-        print(mat.get("name"))
+    # how many mats to mutate?
+    num_to_mutate = int(num_layers * mutation_rate)
+    # fallback to at least 1 mutation
+    if num_to_mutate == 0:
+        num_to_mutate = 1
 
-    # choose a new material randomly from that layer
-    new_mat = random.choice(mats)
+    # choose random indices to mutate
+    "random.sample(population, k): chooses k unique random elements from a population sequence or set."
+    indices_to_mutate = random.sample(range(num_layers), num_to_mutate)
+    
+    logging.info(f"Mutating {num_to_mutate} layers at indices: {indices_to_mutate}")
+    print("\n")
 
-    # check if the new material is different from the old one
-    while new_mat.get("id") == random_mat.get("id"):
-        new_mat = random.choice(mats)
+    # loop over each idx to mutate
+    for idx in indices_to_mutate:
 
-    # debug
-    logging.info(f"Mutated from {random_mat.get('name')} to {new_mat.get('name')}")
+        # old material dict
+        old_mat = mutated_child[idx]
+        old_mat_t = mutated_child_t[idx]
 
-    return new_mat
+        # find layer of the old material
+        layer_key, mat_key = find_mat_layer(dataBase, old_mat)
+        if layer_key is None:
+            logging.warning(f"Material {old_mat.get('name')} not found in dataBase. Skipping.")
+            continue
 
+        # get all materials of that layer
+        all_mats_of_layer = get_mats_of_layer(dataBase, layer_key)
 
+        # choose a new material randomly from that layer
+        new_mat = random.choice(all_mats_of_layer)
+        # ensure new material is different
+        while new_mat.get("id") == old_mat.get("id"):
+            new_mat = random.choice(all_mats_of_layer)
+
+        # pick a random thickness within the range of the new material
+        thickness_range = new_mat.get("thickness_range", [])
+        # check if thickness_range is valid and has vals
+        if not thickness_range:
+            # use the init_thickness
+            new_thickness = new_mat.get("thickness_init")
+
+        else:
+            new_thickness = random.choice(thickness_range)
+
+        # Update both lists at the same idx
+        mutated_child[idx] = new_mat
+        mutated_child_t[idx] = {new_mat.get("name"): round(new_thickness * conv, 4)}
+
+        logging.info(f"Mutated Layers {idx}: {old_mat.get('name')} -> {new_mat.get('name')}, Thickness: {old_mat_t} -> {mutated_child_t[idx]}")
+
+    return mutated_child, mutated_child_t
 
 # Caling functions------------------------------------------------
-
-random_mat = {'name': 'MAGOXX_Board', 'id': '03_02', 'factor': 1.21, 'u-value': 3.93, 'u-value_unit': 'W/m2.K', 'r-value': 0.084, 'r-value_unit': 'm2.K/W', 'lambda': 0.0, 'lambda-value_unit': 'W/m.K', 'thickness_init': 9, 'thickness_range': [], 'density': 1100, 'unit': 'm2', 'A1-A3': 21.1, 'A4': 2.71, 'A5': 0.745, 'C1': 0.032, 'C2': 0.106, 'C3': 0.0, 'C4': 0.326, 'D': -0.028}
-
-new_mat = get_new_material(dataBase, random_mat)
-
 
 
 
