@@ -177,7 +177,10 @@ def wall_to_string(wall, wall_t, parent_toggle=False):
         # return the signature for child walls
         return signature
 
-
+"""
+NEEDS TO BE UPDATED -----------------------------------------------------------------------
+parents[] should be called again inside the function, to only contain the current gen parents
+"""
 def selectParents(all_fitness_vals, walls_list, allWalls_t, gen=0):
     """
     func to select top 2 wall assemblies as parents, based on fitness values
@@ -323,7 +326,8 @@ def crossOver(parents, parentWalls_t, idx=0):
     # # debug
     # print(f"\nChild Wall-{idx}:")
     print("\n")
-    print(child_t)
+    print("child ->", child[0])
+    # print("child_T ->", child_t)
 
     # for i, layer in enumerate(child):
     #     print(f"- {layer['name']} with thickness {child_t[i][layer['name']]}m")
@@ -341,7 +345,7 @@ childWalls_list = []
 childWalls_t = []
 
 
-"NEEDS TO BE UPDATEDDD"
+"NEEDS TO BE UPDATEDDD -----------------------------------------------------------------------"
 def create_uniqueWalls(sourceWalls_list, gen):
     """
     func to create unique  wall assemblies 
