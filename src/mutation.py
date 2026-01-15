@@ -8,8 +8,9 @@ logging.basicConfig(
     format='%(filename)s:%(lineno)d - %(message)s'
 )
 
+filePath = "dataBase/test_dataBase_2.json"
 # load dataBase
-dataBase = getDataBase()
+dataBase = getDataBase(filePath)
 
 # conversion mm to m
 conv = 1/1000
@@ -99,9 +100,13 @@ def mutate_child(dataBase, child, child_t, mutation_rate=0.2):
 
     # no of layers
     num_layers = len(mutated_child)
+    print("\n")
+    logging.info(f"Number of layers in child wall assembly: {num_layers}")
 
     # how many mats to mutate?
     num_to_mutate = int(num_layers * mutation_rate)
+    print(num_layers * mutation_rate)
+    print("layers to mutate:", num_to_mutate)
     # fallback to at least 1 mutation
     if num_to_mutate == 0:
         num_to_mutate = 1
@@ -149,7 +154,7 @@ def mutate_child(dataBase, child, child_t, mutation_rate=0.2):
         mutated_child[idx] = new_mat
         mutated_child_t[idx] = {new_mat.get("name"): round(new_thickness * conv, 4)}
 
-        logging.info(f"Mutated Layers {idx}: {old_mat.get('name')} -> {new_mat.get('name')}, Thickness: {old_mat_t} -> {mutated_child_t[idx]}")
+        # logging.info(f"Mutated Layers {idx}: {old_mat.get('name')} -> {new_mat.get('name')}, Thickness: {old_mat_t} -> {mutated_child_t[idx]}")
 
     return mutated_child, mutated_child_t
 
