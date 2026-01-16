@@ -4,7 +4,7 @@ if __name__ == "__main__":
 
     filePath = "dataBase/test_dataBase_2.json"
 
-    ga = WallAssemblyGA(filePath, population=10, generations=5, mutation_rate=0.6)
+    ga = WallAssemblyGA(filePath, population=20, generations=20)
 
     # print("\n")
     # print(ga)

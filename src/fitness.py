@@ -10,7 +10,7 @@ debug = False
 
 
 
-def fitness (u_actual, gwp_actual):
+def fitness (u_actual, gwp_actual, gen, max_gen):
 
     """
     LOWER THE FITNESS => BETTER GENOME
@@ -18,39 +18,44 @@ def fitness (u_actual, gwp_actual):
     Constraint:
     u_min <= u_total <= u_max
     
-    if constraint:
-    fitness= gwp_total
-    else:
-    fitness= gwp_total + penalty
-
-    penalty => depends on the amount of violation of the constraint
+    adaptive penalty => depends on the amount of violation of the constraint and 
+    increases with each generation
 
     """
-
     u_target = 0.14
     buffer = 0.1 #10%
 
     u_min = u_target * (1 - buffer) 
     u_max = u_target * (1 + buffer)
 
-    # u_actual = u_total
-    # gwp_actual = gwp_total
+    # small constant to avoid division by zero
+    const = 10**-2
 
+    # adaptive penalty factors
+    penalty_base = 10
+    penalty_max = 1000
+
+    # check if u_actual is within the target range
     if u_min <= u_actual <= u_max:
         
         u_debug = "in range..."
 
-        # round off to 2 decimal places
-        # fitness = round((1/gwp_actual), 2)
-        fitness = round(1/gwp_actual, 4)
+        # Feasbile solution
+        fitness = round(1/(gwp_actual + const), 4)  
     else:
         
         u_debug = "out of range..."
-
+       
         violation = (u_actual - u_max) if u_actual > u_max else (u_min - u_actual)
-        weight = 1000
-        penalty = weight * violation
-        fitness = round(1/(gwp_actual + penalty), 4)
+        
+        " Adaptive penalty calculation -------------------------------------------"
+        progress = gen/max_gen
+        penalty_factor = penalty_base + (penalty_max - penalty_base) * progress
+
+        # add penalty factor to gwp
+        penalized_gwp = gwp_actual + penalty_factor * violation
+
+        fitness = round(1/(penalized_gwp + const), 4)
 
     if debug:
 

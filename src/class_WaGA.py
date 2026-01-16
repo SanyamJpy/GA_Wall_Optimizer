@@ -103,7 +103,7 @@ class WallAssemblyGA:
             wall_key = f"wall-{wall_idx}" if gen == 0 else f"g{gen}_child-{wall_idx}"
 
             "call fitness func"
-            this_fitness = fitness (this_u, this_gwp)
+            this_fitness = fitness (this_u, this_gwp, gen, self.generations)
 
             # update dicts
             u_dict [wall_key] = this_u
@@ -225,7 +225,7 @@ class WallAssemblyGA:
             pW_t = walls_t[wall_index]
 
             # get wall signature and add to seenWalls set
-            self.wall_to_string(best_wall, pW_t, True)
+            # self.wall_to_string(best_wall, pW_t, True)
 
             # add the parent walls and their thicknesses to respective lists
             parents.append(best_wall)
@@ -269,7 +269,6 @@ class WallAssemblyGA:
         "parents": list of parent wall assemblies (list of lists of dicts)
         "parentWalls_t": list of thicknesses of parent wall assemblies (list of lists of dicts)
         "idx": index of the child wall assembly (for debugging purposes)
-        "mutation_rate": float between 0 and 1 (eg: 0.2 = 20% mutation)
 
         RETURNS:
         "mutated_child": mutated child wall assembly (list of material dicts)
@@ -302,7 +301,7 @@ class WallAssemblyGA:
             child_t.append(thick)
 
         " Perform mutation"
-        mutated_child, mutated_child_t = mutate_child(self.dataBase, child, child_t, self.mutation_rate)
+        mutated_child, mutated_child_t = mutate_child(self.dataBase, child, child_t, self.gen, self.generations)
 
         # # debug------------------------------------------------------------------
         # print("Before Mutation:")
@@ -336,6 +335,14 @@ class WallAssemblyGA:
 
         childWalls_list = []
         childWalls_t = []
+
+        "ELITISM: preserve the parents walls----------------------------------"
+        # taking the latest parents
+        for p_idx, parent in enumerate(self.all_parents[-1]):
+            childWalls_list.append(parent)
+            childWalls_t.append(self.all_parents_t[-1][p_idx])
+            # add parent wall signatures to seenWalls set
+            self.wall_to_string(parent, self.all_parents_t[-1][p_idx], True)
 
         # loop until we have desired population of unique walls
         attempts = 0
@@ -398,8 +405,8 @@ class WallAssemblyGA:
         2. Calc fitness
         3. Select parents for next gen
         """
-
-        logging.info(f"\n---Starting Generation {gen} ---")
+        print("\n")
+        logging.info(f"---Starting Generation {gen} ---")
 
         # ========= Generations = 0 =========
         if gen == 0:
