@@ -5,6 +5,12 @@ from src.u_val import calc_U_val_Gwp_total
 from src.fitness import fitness
 import logging
 import random
+import os
+# os.environ['MPLBACKEND'] = 'TkAgg'
+# matplotlib.use('TkAgg')
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+logging.getLogger('PngImagePlugin').setLevel(logging.WARNING)
+import matplotlib.pyplot as plt
 
 
 class WallAssemblyGA:
@@ -62,7 +68,7 @@ class WallAssemblyGA:
     def get_Vals(self, walls_list, gen=0, t=[]):
 
         """
-        Calc u-value, gwp, and fitness of all the wallAssemblies
+        Calc u-value, gwp, of all the wallAssemblies
 
         EASIER IDENTIFICATION:
         for generation:0, keep it wall-0, wall-1, wall-2,....
@@ -74,27 +80,18 @@ class WallAssemblyGA:
         "t": list of thicknesses of wall assemblies (list of lists of dicts): only for further(children) generations
         
         RETURNS:
-        "all_fitness": list of dicts of fitness values of all wall assemblies
-        For gen=0: also returns init_walls_t: list of thicknesses of all init_wall assemblies
+        For gen=0: returns : list of thicknesses of all init_wall assemblies
         """
-        # temp dicts for u, gwp, fitness values
+        # temp dicts for u, gwp values
         u_dict = {}
         gwp_dict = {}
-        fitness_dict = {}
+        # fitness_dict = {}
 
         # list for initial generation thicknesses
         init_walls_t = []
 
-        # Loop through each wall assembly and calculate U-val, Gwp, fitness
+        # Loop through each wall assembly and calculate U-val, Gwp
         for wall_idx, wall in enumerate (walls_list):
-
-            # logging.debug(type(wall))
-
-            # for m in wall:
-            #     logging.debug(m["name"])
-
-
-            # print(wall)
 
             "call u_val func"
             this_u, this_gwp, this_wall_t = calc_U_val_Gwp_total(wall, gen, t, wall_idx)
@@ -102,15 +99,15 @@ class WallAssemblyGA:
             """Key naming convention: wall-0, wall-1, ....  or g{n}_child-0, g{n}_child-1, ...."""
             wall_key = f"wall-{wall_idx}" if gen == 0 else f"g{gen}_child-{wall_idx}"
 
-            "call fitness func"
-            this_fitness = fitness (this_u, this_gwp, gen, self.generations)
+            # "call fitness func"
+            # this_fitness = fitness (this_u, this_gwp, gen, self.generations)
 
             # update dicts
             u_dict [wall_key] = this_u
             gwp_dict [wall_key] = this_gwp
-            fitness_dict [wall_key] = this_fitness
+            # fitness_dict [wall_key] = this_fitness
 
-            # allWalls_t is list only for initial generation
+            # This list only for initial generation
             if gen ==0:
                 # update allWalls_t
                 init_walls_t.append(this_wall_t)
@@ -119,7 +116,7 @@ class WallAssemblyGA:
         # update history 
         self.all_U.append(u_dict)
         self.all_gwp.append(gwp_dict)
-        self.all_fitness.append(fitness_dict)
+        # self.all_fitness.append(fitness_dict)
 
         #debug
         # print("\n")
@@ -131,11 +128,41 @@ class WallAssemblyGA:
 
         # return values based on generation
         if gen ==0:
-            # as we define random thickns only for initial generation, so we need to return allWalls_t too
-            return self.all_fitness, init_walls_t
+            # as we define random thickns only for initial generation, so we need to return them
+            return init_walls_t
         else:
-            return self.all_fitness
+            return None
         
+
+    def calc_fitness(self, gen, max_gen):
+        """
+        Calculate fitness based on u-value and gwp
+        
+
+        """
+        # temp dict
+        fitness_dict = {}
+
+        for wall_idx, (key, value) in enumerate(self.all_U[gen].items()):
+            # get the u and gwp values for current wall for running gen
+            this_u = value
+            this_gwp = self.all_gwp[gen][key]
+
+            "call fitness func"
+            this_fitness = fitness (this_u, this_gwp, gen, self.generations)
+
+            """Key naming convention: wall-0, wall-1, ....  or g{n}_child-0, g{n}_child-1, ...."""
+            wall_key = f"wall-{wall_idx}" if gen == 0 else f"g{gen}_child-{wall_idx}"
+
+            # update dict
+            fitness_dict [wall_key] = this_fitness
+
+        # update history
+        self.all_fitness.append(fitness_dict)
+
+        return None
+
+
 
     def wall_to_string(self, wall, wall_t, parent_toggle=False):
 
@@ -413,8 +440,11 @@ class WallAssemblyGA:
             # create initial population
             walls_list = self.create_init_population()
 
-            # calc fitness and get thicknesses
-            all_fitness, walls_t = self.get_Vals(walls_list, gen)
+            # calc u, gwp and get thicknesses
+            walls_t = self.get_Vals(walls_list, gen)
+
+            # calc fitness
+            self.calc_fitness(gen, self.generations)
 
             # select parents
             parents, parentWalls_t = self.selectParents(walls_list, walls_t, gen)
@@ -430,8 +460,13 @@ class WallAssemblyGA:
             # create children
             childWalls_list, childWalls_t = self.create_unique_children(parents, parentWalls_t, gen)
 
-            # calc fitness
-            all_fitness = self.get_Vals(childWalls_list, gen, childWalls_t)
+            # calc u and gwp of children
+            self.get_Vals(childWalls_list, gen, childWalls_t)
+
+            "NEed a function for optimizing U-val"
+
+            # calc fitness of children
+            self.calc_fitness(gen, self.generations)
 
             # select parents for next gen
             parents, parentWalls_t = self.selectParents(childWalls_list, childWalls_t, gen)
@@ -465,10 +500,113 @@ class WallAssemblyGA:
             "all_parents": self.all_parents,
             "all_parents_t": self.all_parents_t,
             "all_parents_U": self.all_parents_U,
-            "all_parents_Gwp": self.all_parents_gwp,
+            "all_parents_gwp": self.all_parents_gwp,
             "all_results": self.all_results,
             "SeenWalls": self.seenWalls
         }
+    
+    def plot_gwp_evolution(self):
+        """
+        Plots gwp of all parents over generations
+        - X-axis: generations
+        - Y-axis: GWP values
+        - Each dot: a parent wall in that generation
+        - Gold star: best wall assembly found
+        """
+        if not self.all_parents_gwp:
+            print("No GWP data available to plot.")
+            return
+        
+        generations = len(self.all_parents_gwp)
+
+        fig, ax = plt.subplots(figsize=(10,6))
+
+        # cmap = plt.get_cmap("viridis", generations)
+        cmap = plt.get_cmap("tab10")
+
+        # loop through generations and plot each parent as dot
+        for gen_num, gwp_dict in enumerate(self.all_parents_gwp):
+            color = cmap((gen_num-1)%10)
+
+            for parent_key, gwp_val in gwp_dict.items():
+                ax.scatter(gen_num, gwp_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
+
+                # label under the dot
+                ax.annotate(parent_key, (gen_num, gwp_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
+
+
+        # highlight best wall assembly
+        best_info = self.get_best_wall_info()
+        best_gen = best_info["best_gen"]
+        best_gwp = best_info["best_gwp"]
+        best_wall_key = best_info["best_wall_key"]
+
+        ax.scatter(best_gen, best_gwp, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
+
+        ax.annotate(f"Best: {best_wall_key}\n GWP= {best_gwp}", (best_gen, best_gwp), textcoords="offset points", xytext=(0,16), ha='center', fontsize=10, fontweight='bold', color= "darkred")
+
+        # Final formatting
+        ax.set_xticks(range(generations))
+    
+        ax.set_xlabel("Generations", fontsize=12)
+        ax.set_ylabel("GWP Values", fontsize=12)
+        ax.set_title("GWP Evolution Over Generations", fontsize=14, fontweight='bold')
+        ax.grid(True, axis='y',linestyle='--', alpha=0.4)
+        fig.tight_layout()
+        plt.show()
+        plt.close()
+
+    def plot_U_evolution(self):
+        """
+        Plots U of all parents over generations
+        - X-axis: generations
+        - Y-axis: U values
+        - Each dot: a parent wall in that generation
+        - Gold star: best wall assembly found
+        """
+        if not self.all_parents_U:
+            print("No U data available to plot.")
+            return
+
+        generations = len(self.all_parents_U)
+
+        fig, ax = plt.subplots(figsize=(10,6))
+
+        # cmap = plt.get_cmap("viridis", generations)
+        cmap = plt.get_cmap("tab10")
+
+        # loop through generations and plot each parent as dot
+        for gen_num, U_dict in enumerate(self.all_parents_U):
+            color = cmap((gen_num-1)%10)
+
+            for parent_key, U_val in U_dict.items():
+                ax.scatter(gen_num, U_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
+                # label under the dot
+                ax.annotate(parent_key, (gen_num, U_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
+
+
+        # highlight best wall assembly
+        best_info = self.get_best_wall_info()
+        best_gen = best_info["best_gen"]
+        best_U = best_info["best_u"]
+        best_wall_key = best_info["best_wall_key"]
+
+        ax.scatter(best_gen, best_U, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
+
+        ax.annotate(f"Best: {best_wall_key}\n U= {best_U}", (best_gen, best_U), textcoords="offset points", xytext=(0,16), ha='center', fontsize=10, fontweight='bold', color= "darkred")
+
+        # Final formatting
+        ax.set_xticks(range(generations))
+    
+        ax.set_xlabel("Generations", fontsize=12)
+        ax.set_ylabel("U Values", fontsize=12)
+        ax.set_title("U Evolution Over Generations", fontsize=14, fontweight='bold')
+        ax.grid(True, axis='y',linestyle='--', alpha=0.4)
+        fig.tight_layout()
+        plt.show()
+        plt.close()
+
+        
 
 
 

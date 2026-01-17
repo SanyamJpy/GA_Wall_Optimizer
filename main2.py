@@ -1,3 +1,4 @@
+import logging
 from src.class_WaGA import WallAssemblyGA
 
 if __name__ == "__main__":
@@ -11,20 +12,23 @@ if __name__ == "__main__":
 
     results = ga.run()
     best_wall_info = ga.get_best_wall_info()
-    print(best_wall_info)
+    logging.info(best_wall_info)
 
     print("\n")
-    # print(f"Best solution found: {results["best_wall"]}")
-    # print(f"All U-values: {results['all_fitness'][best_gen]}")
-    # print(results["SeenWalls"])
+    # print(results["all_U"])
+    # print("\n")
+    # print(results["all_gwp"])
+    # print("\n")
+    # for key, value in results["all_U"][0].items():
+    #     print("U-val:", value)
+    #     print("GWP:", results["all_gwp"][0][key])
 
-    # for key, value in results["all_fitness"][best_gen].items():
-    #     if value == results["best_fitness"]:
-    #         print(f"Best solution found: {key}")
-    #         best_wall_key = key
+    plot = input("Do you want to plot the results? (y/n): ")
+    if plot.lower() == 'y':
+        ga.plot_gwp_evolution()
+        ga.plot_U_evolution()
 
-    # print(f"U-value of best solution: {results['all_U'][best_gen][best_wall_key]}")
-    # print(f"GWP of best solution: {results['all_gwp'][best_gen][best_wall_key]}")
+
         
 
 
