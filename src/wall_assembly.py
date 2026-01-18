@@ -18,14 +18,11 @@ def wallAssembly(dataBase, index=0):
     mat3_list = []
     mat4_list = []
     mat5_list = []
+    mat6_list = []
     mat9_list = []
     # list to store all wall layers
     layers = []
 
-    # for layer in dataBase["Components"]:
-    #     for material in dataBase["Components"][layer]:
-    #         print (material)
-    #         random_list.append(material)
 
     for layer in dataBase["Components"]:
         layers.append(layer)
@@ -53,6 +50,10 @@ def wallAssembly(dataBase, index=0):
             for material in dataBase["Components"][l]:
                 mat5_list.append(material)
 
+        elif l == "06_secondaryInsulation":
+            for material in dataBase["Components"][l]:
+                mat6_list.append(material)
+
     # print(mat1_list)
 
     # #select random material Name from list -> "string"
@@ -60,11 +61,12 @@ def wallAssembly(dataBase, index=0):
     lay_3_mat = mat3_list[random.randint(0, len(mat3_list)-1)]
     lay_4_mat = mat4_list[random.randint(0, len(mat4_list)-1)]
     lay_5_mat = mat5_list[random.randint(0, len(mat5_list)-1)]
+    lay_6_mat = mat6_list[random.randint(0, len(mat6_list)-1)]
     lay_9_mat = mat9_list[random.randint(0, len(mat9_list)-1)]
 
 
 
-    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 9_Mat: {lay_9_mat}")
+    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 6_Mat: {lay_6_mat} \nLayer 9_Mat: {lay_9_mat}")
     print("="*100)
 
     # create a wall assem
@@ -73,6 +75,7 @@ def wallAssembly(dataBase, index=0):
         dataBase["Components"]["03_woodBasedBoard"][lay_3_mat],
         dataBase["Components"]["04_wallInsulationInside"][lay_4_mat],
         dataBase["Components"]["05_PrimaryStructure"][lay_5_mat],
+        dataBase["Components"]["06_secondaryInsulation"][lay_6_mat],
         dataBase["Components"]["09_wallFinishFacade"][lay_9_mat]
     ]
 
@@ -86,9 +89,9 @@ def wallAssembly(dataBase, index=0):
 
 if __name__ == "__main__":
 
-    # filePath = "dataBase/test_dataBase_2.json"
+    filePath = "dataBase/test_dataBase_2.json"
 
-    dataBase = getDataBase()
+    dataBase = getDataBase(filePath)
     if not dataBase:
         print("Data Base not loaded")
         print("x-"*20)
