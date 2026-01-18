@@ -119,32 +119,6 @@ def calc_R_val(wallAssembly, gen=0, childWalls_t=[], wall_idx=0):
 
         else:
             "for further generations, take the selected thickness, from the childWalls_t"
-            temp_mat_t = []
-            # loop for each wall in childWalls_t
-            # print("childWalls_t:", childWalls_t)
-            # for idx, wall in enumerate(childWalls_t): 
-                # print("\n")
-                # print("idx:", idx)  
-
-                # loop for each layer in that wall
-                # for idx2, layer in enumerate(wall):
-                    # print("\n")
-                    # print("idx2:", idx2)
-                    # print("layer:", layer)
-
-                    # append in a list
-                    # temp_mat_t.append(layer)
-                    # assign mat and mat_t
-                    # mat, mat_t = next(iter(layer.items()))
-                    # print(f"mat_name:{mat}, mat_t:{mat_t}")
-
-                    # check if mat name matches
-                    # if mat['name'] == list(layer.keys())[0]:
-                    #     mat_t = layer[mat['name']]
-                    #     # wall_t.append({mat['name']: mat_t})
-                        
-                    #     print("matched mat name:", mat['name'])
-                    #     print("mat_t_selected:", mat_t)
 
             "Refer pg.6 from notes for undersstanding"
 
@@ -162,12 +136,11 @@ def calc_R_val(wallAssembly, gen=0, childWalls_t=[], wall_idx=0):
                 # print("update idx")
                 wall_idx +=1
             
-            
-
         # print("Final mat_t used:", mat_t)
-            
-        # CCheck if r-value is ND or 0 and lambda is not 0.0
-        if (mat['r-value']== None or mat['r-value'] == 0.0) and mat['lambda'] != 0.0 :
+
+        "Priority: Use lambda to calc r-value if available; else use r-value directly"
+        # if (mat['r-value']== None or mat['r-value'] == 0.0) and mat['lambda'] != 0.0 :
+        if mat['lambda'] != 0.0 :
             
             # print("using lambda....")
             " r = thickness / lambda "
@@ -178,8 +151,8 @@ def calc_R_val(wallAssembly, gen=0, childWalls_t=[], wall_idx=0):
                 print("lambda:", mat["lambda"])
                 print("r:",r)
 
-            # if r-val present, take it
-        else:
+            # if 'lambda' is 0, take r-val
+        elif mat['lambda'] == 0.0 and (mat['r-value'] is not None or mat['r-value'] != 0.0):
             # print("we have r val")
             r_total += mat["r-value"]
             if debug:
@@ -227,6 +200,12 @@ def gwpCalc(material, mat_amt):
 
     gwp_sum = None
 
+    # if any value is None or not present, set it to 0
+    for key in ["A1-A3", "A5", "C2", "C3", "D"]:
+        if material.get(key) is None or key not in material.keys():
+            material[key] = 0.0
+    
+        
     gwp_per_unit = material["A1-A3"] + material["A5"] + material["C2"] + material["C3"] - material["D"]
     gwp_sum = gwp_per_unit * mat_amt
 
