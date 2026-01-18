@@ -11,10 +11,11 @@ import os
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('PngImagePlugin').setLevel(logging.WARNING)
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 
 class WallAssemblyGA:
-    def __init__(self, dataBase_path, population=20, generations=10, mutation_rate=0.2):
+    def __init__(self, dataBase_path, population=30, generations=20, mut_start=0.5, mut_end=0.1):
         """
         Initialize the Genetic Algorithm for wall assembly optimization.
 
@@ -28,7 +29,8 @@ class WallAssemblyGA:
         self.dataBase = getDataBase(dataBase_path)
         self.population = population
         self.generations = generations
-        self.mutation_rate = mutation_rate
+        self.mutation_start_rate = mut_start
+        self.mutation_end_rate = mut_end
         
         if not self.dataBase:
             raise RuntimeError("Data Base not loaded from the provided path.")
@@ -46,6 +48,9 @@ class WallAssemblyGA:
         self.all_parents_t = []     # [ [[{},{}..], [{},{}..]], ... ] list of parents' thicknesses per generation
         self.all_parents_U = []     # [ {p1, p2, p3}, {p1, p2, p3}, ... ] list of parents' U-values per generation
         self.all_parents_gwp = []   # [ {p1, p2, p3}, {p1, p2, p3}, ... ] list of parents' GWP-values per generation
+
+        # list of thicknesses of ALL the wall assemblies per generation
+        self.all_thicknesses = []   # [ [[{"L1": val},{"L2": val}..], [{},{}..]], ... ] (list of lists of lists of dicts) 
 
         # final results
         self.best_wall = None
@@ -80,7 +85,8 @@ class WallAssemblyGA:
         "t": list of thicknesses of wall assemblies (list of lists of dicts): only for further(children) generations
         
         RETURNS:
-        For gen=0: returns : list of thicknesses of all init_wall assemblies
+        For gen=0:
+        "init_walls_t": list of thicknesses of initial wall assemblies (list of lists of dicts)
         """
         # temp dicts for u, gwp values
         u_dict = {}
@@ -99,24 +105,21 @@ class WallAssemblyGA:
             """Key naming convention: wall-0, wall-1, ....  or g{n}_child-0, g{n}_child-1, ...."""
             wall_key = f"wall-{wall_idx}" if gen == 0 else f"g{gen}_child-{wall_idx}"
 
-            # "call fitness func"
-            # this_fitness = fitness (this_u, this_gwp, gen, self.generations)
 
             # update dicts
             u_dict [wall_key] = this_u
             gwp_dict [wall_key] = this_gwp
-            # fitness_dict [wall_key] = this_fitness
 
             # This list only for initial generation
             if gen ==0:
                 # update allWalls_t
                 init_walls_t.append(this_wall_t)
 
+        # logging.info(init_walls_t)
 
         # update history 
         self.all_U.append(u_dict)
         self.all_gwp.append(gwp_dict)
-        # self.all_fitness.append(fitness_dict)
 
         #debug
         # print("\n")
@@ -229,13 +232,13 @@ class WallAssemblyGA:
         print(f"\nTop {num_parents} fitness values:")
         
         for i, (wall_key, fit_val) in enumerate(top_parents):
-            print("parent",i+1 )
-            logging.info(f"{wall_key}: fitness -> {fit_val}")
 
             # get respective u and gwp values
             u_val = self.all_U[gen][wall_key]
             gwp_val = self.all_gwp[gen][wall_key]
 
+            print("parent",i+1 )
+            logging.info(f"{wall_key}: fitness -> {fit_val}")
             logging.info(f"U-value: {u_val}, GWP-value: {gwp_val}")
 
             # update temp dicts
@@ -250,9 +253,6 @@ class WallAssemblyGA:
 
             # get respective thicknesses from allWalls_t
             pW_t = walls_t[wall_index]
-
-            # get wall signature and add to seenWalls set
-            # self.wall_to_string(best_wall, pW_t, True)
 
             # add the parent walls and their thicknesses to respective lists
             parents.append(best_wall)
@@ -328,7 +328,14 @@ class WallAssemblyGA:
             child_t.append(thick)
 
         " Perform mutation"
-        mutated_child, mutated_child_t = mutate_child(self.dataBase, child, child_t, self.gen, self.generations)
+        mutated_child, mutated_child_t = mutate_child(
+            dataBase=self.dataBase, 
+            child=child, 
+            child_t=child_t, 
+            mut_start=self.mutation_start_rate,
+            mut_end=self.mutation_end_rate, 
+            gen=self.gen, 
+            max_gen=self.generations)
 
         # # debug------------------------------------------------------------------
         # print("Before Mutation:")
@@ -396,12 +403,13 @@ class WallAssemblyGA:
             
             attempts += 1
 
+        # update history
+        # self.all_thicknesses.append(childWalls_t)
 
         logging.info(f"Generated {len(childWalls_list)} unique children in generation {gen}")
 
         return childWalls_list, childWalls_t
     
-    """NEED TO ADD THE THICKNESS OF THE BEST WALL AS WELL---------FOR THAT STORE ALL THE THICKNESS--------------------------------------------"""
     def get_best_wall_info(self):
         """
         Get the best wall assembly information
@@ -409,20 +417,33 @@ class WallAssemblyGA:
 
         best_gen = self.best_gen
 
+        # extract best wall key
         for key, value in self.all_fitness[best_gen].items():
             if value == self.best_fitness:
                 # print(f"Best Wall key: {key}")
                 best_wall_key = key
 
+        # with best wall key, get respective u and gwp values
         best_u = self.all_U[best_gen][best_wall_key]
         best_gwp = self.all_gwp[best_gen][best_wall_key]
+
+        # extract the index of the best wall from its key
+        bw_idx = int(best_wall_key.split("-")[-1])
+
+        # get the thicknesses of the best wall from all_thicknesses history
+        all_layers_t = self.all_thicknesses[best_gen][bw_idx] 
+
+        # total all the layer thicknesses
+        total_wall_thickness = round(sum([list(layer_t.values())[0] for layer_t in all_layers_t]), 2)
 
         return {
             "best_gen": best_gen,
             "best_wall_key": best_wall_key,
             "best_u": best_u,
             "best_gwp": best_gwp,
-            "best_fitness": self.best_fitness
+            "best_fitness": self.best_fitness,
+            "all_layers_t": all_layers_t,
+            "total_best_wall_thickness": total_wall_thickness
         }
 
     def run_generation(self,gen):
@@ -451,6 +472,9 @@ class WallAssemblyGA:
 
             self.gen += 1
 
+            # update history
+            self.all_thicknesses.append(walls_t)
+
         # ========= Generations > 0: Crossover, Mutation, Selection ==========
         else:
             # get parents from previous gen
@@ -473,6 +497,9 @@ class WallAssemblyGA:
 
             self.gen += 1
 
+            # update history
+            self.all_thicknesses.append(childWalls_t)   
+
             # return child walls and their thicknesses for next gen
             return childWalls_list, childWalls_t
 
@@ -481,14 +508,14 @@ class WallAssemblyGA:
         """
         Run the full GA for max_generations
         """
-        logging.info("\n=== Starting Wall Assembly Genetic Algorithm ===")
+        logging.info("======= Starting Wall Assembly Genetic Algorithm =======")
 
         for gen in range(self.generations):
             self.run_generation(gen)
 
         print("\n")
-        logging.info("\n=== Genetic Algorithm Completed ===")
-        logging.info(f"Best Wall Assembly found in Generation {self.best_gen} with Fitness: {self.best_fitness}")
+        logging.info("=================Genetic Algorithm Completed =====================")
+        logging.info(f">>>>>> Best Wall Assembly found in Generation {self.best_gen} with Fitness: {self.best_fitness}<<<<<<<<<")
 
         return {
             "best_gen": self.best_gen,
@@ -501,110 +528,159 @@ class WallAssemblyGA:
             "all_parents_t": self.all_parents_t,
             "all_parents_U": self.all_parents_U,
             "all_parents_gwp": self.all_parents_gwp,
-            "all_results": self.all_results,
+            "all_t": self.all_thicknesses,
             "SeenWalls": self.seenWalls
         }
     
-    def plot_gwp_evolution(self):
+
+    def plot_graphs(self):
         """
-        Plots gwp of all parents over generations
+        Plots GWP and U of all parents over generations
         - X-axis: generations
-        - Y-axis: GWP values
+        - Y-axis: GWP and U values
         - Each dot: a parent wall in that generation
         - Gold star: best wall assembly found
         """
-        if not self.all_parents_gwp:
-            print("No GWP data available to plot.")
+
+        # get the best wall info 
+        best_info = self.get_best_wall_info()
+        best_allLayers_t = best_info["all_layers_t"]
+        best_total_thickness = best_info["total_best_wall_thickness"]
+        
+        # check data availability
+        if not self.all_parents_gwp or not self.all_parents_U:
+            print("No GWP or U data available to plot.")
             return
         
+        if not best_allLayers_t or best_total_thickness is None:
+            print("No best wall thickness data available to plot.")
+            return
+        
+        # number of generations
         generations = len(self.all_parents_gwp)
 
-        fig, ax = plt.subplots(figsize=(10,6))
+        # create subplots: ax1 = GWP, ax2 = U
+        # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14,6))
+        fig = plt.figure(figsize=(12, 7))
+        gs = fig.add_gridspec(2, 2, height_ratios=[2, 1], hspace=0.4, wspace=0.3)
 
-        # cmap = plt.get_cmap("viridis", generations)
-        cmap = plt.get_cmap("tab10")
+        # left top: GWP evolution
+        ax_gwp = fig.add_subplot(gs[0, 0])
+        # right top: U evolution
+        ax_u = fig.add_subplot(gs[0, 1])
+        # bottom whole: Best wall thicknesses
+        ax_wall = fig.add_subplot(gs[1, :])
 
-        # loop through generations and plot each parent as dot
-        for gen_num, gwp_dict in enumerate(self.all_parents_gwp):
-            color = cmap((gen_num-1)%10)
 
-            for parent_key, gwp_val in gwp_dict.items():
-                ax.scatter(gen_num, gwp_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
+        # adjust spacing between subplots
+        # fig.tight_layout(pad=4.0)
 
-                # label under the dot
-                ax.annotate(parent_key, (gen_num, gwp_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
-
+        # color map
+        cmap = plt.get_cmap("viridis", generations)
 
         # highlight best wall assembly
         best_info = self.get_best_wall_info()
         best_gen = best_info["best_gen"]
         best_gwp = best_info["best_gwp"]
         best_wall_key = best_info["best_wall_key"]
+        best_U = best_info["best_u"]
 
-        ax.scatter(best_gen, best_gwp, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
+        "-- Plot GWP Evolution -----------------------------"
 
-        ax.annotate(f"Best: {best_wall_key}\n GWP= {best_gwp}", (best_gen, best_gwp), textcoords="offset points", xytext=(0,16), ha='center', fontsize=10, fontweight='bold', color= "darkred")
+        for gen_num, gwp_dict in enumerate(self.all_parents_gwp):
+            color = cmap((gen_num-1)%10)
+
+            for parent_key, gwp_val in gwp_dict.items():
+                ax_gwp.scatter(gen_num, gwp_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
+
+                # label under the dot
+                ax_gwp.annotate(parent_key, (gen_num, gwp_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
+
+
+        ax_gwp.scatter(best_gen, best_gwp, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
+
+        ax_gwp.annotate(f"Best: {best_wall_key}\n GWP= {best_gwp}", (best_gen, best_gwp), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
 
         # Final formatting
-        ax.set_xticks(range(generations))
-    
-        ax.set_xlabel("Generations", fontsize=12)
-        ax.set_ylabel("GWP Values", fontsize=12)
-        ax.set_title("GWP Evolution Over Generations", fontsize=14, fontweight='bold')
-        ax.grid(True, axis='y',linestyle='--', alpha=0.4)
-        fig.tight_layout()
-        plt.show()
-        plt.close()
+        ax_gwp.set_xticks(range(generations))
 
-    def plot_U_evolution(self):
-        """
-        Plots U of all parents over generations
-        - X-axis: generations
-        - Y-axis: U values
-        - Each dot: a parent wall in that generation
-        - Gold star: best wall assembly found
-        """
-        if not self.all_parents_U:
-            print("No U data available to plot.")
-            return
+        ax_gwp.set_xlabel("Generations", fontsize=12)
+        ax_gwp.set_ylabel("GWP Values", fontsize=12)
+        ax_gwp.set_title("GWP Evolution Over Generations", fontsize=14, fontweight='bold')
+        ax_gwp.grid(True, axis='y',linestyle='--', alpha=0.4)
 
-        generations = len(self.all_parents_U)
-
-        fig, ax = plt.subplots(figsize=(10,6))
-
-        # cmap = plt.get_cmap("viridis", generations)
-        cmap = plt.get_cmap("tab10")
+        "-- Plot U Evolution -----------------------------"
 
         # loop through generations and plot each parent as dot
         for gen_num, U_dict in enumerate(self.all_parents_U):
             color = cmap((gen_num-1)%10)
 
             for parent_key, U_val in U_dict.items():
-                ax.scatter(gen_num, U_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
+                ax_u.scatter(gen_num, U_val, color=color, label=f"{parent_key}", marker='o', s=30, edgecolors='black', linewidth=0.5)
                 # label under the dot
-                ax.annotate(parent_key, (gen_num, U_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
+                ax_u.annotate(parent_key, (gen_num, U_val), textcoords="offset points", xytext=(0,-14), ha='center', fontsize=8)
+        
 
+        ax_u.scatter(best_gen, best_U, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
 
-        # highlight best wall assembly
-        best_info = self.get_best_wall_info()
-        best_gen = best_info["best_gen"]
-        best_U = best_info["best_u"]
-        best_wall_key = best_info["best_wall_key"]
-
-        ax.scatter(best_gen, best_U, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
-
-        ax.annotate(f"Best: {best_wall_key}\n U= {best_U}", (best_gen, best_U), textcoords="offset points", xytext=(0,16), ha='center', fontsize=10, fontweight='bold', color= "darkred")
+        ax_u.annotate(f"Best: {best_wall_key}\n U= {best_U}", (best_gen, best_U), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
 
         # Final formatting
-        ax.set_xticks(range(generations))
-    
-        ax.set_xlabel("Generations", fontsize=12)
-        ax.set_ylabel("U Values", fontsize=12)
-        ax.set_title("U Evolution Over Generations", fontsize=14, fontweight='bold')
-        ax.grid(True, axis='y',linestyle='--', alpha=0.4)
-        fig.tight_layout()
+        ax_u.set_xticks(range(generations))
+
+        ax_u.set_xlabel("Generations", fontsize=12)
+        ax_u.set_ylabel("U Values", fontsize=12)
+        ax_u.set_title("U Evolution Over Generations", fontsize=14, fontweight='bold')
+        ax_u.grid(True, axis='y',linestyle='--', alpha=0.4)
+        
+        "-- Plot Best Wall Assembly Thicknesses -----------------------------"
+        # start stacking from y=0
+        current_y = 0
+        layer_colors = plt.get_cmap("tab20")
+        width = 5  # fixed width for all layers
+
+        for idx, layer in enumerate(best_allLayers_t):
+            color = layer_colors(idx%20)
+
+            mat, thick = list(layer.items())[0]
+            rect = Rectangle((0, current_y), width, thick, color=color, edgecolor='black', linewidth=1)
+            ax_wall.add_patch(rect)
+
+            # Text on right
+            y_center = current_y + thick / 2
+            if idx == 0:
+                ax_wall.text(width + width*0.05, y_center-0.05, f"Layer-{idx+1}:{mat}: {thick*1000}mm (Interior)", va='center',ha='left', fontsize=8)
+            else:
+                ax_wall.text(width + width*0.05, y_center, f"Layer-{idx+1}:{mat}: {thick*1000}mm", va='center',ha='left', fontsize=8)
+
+            # update current_y for next layer
+            current_y += thick
+
+        # Annotate total thickness at the top center
+        ax_wall.annotate(f"Total Thickness: {best_total_thickness * 1000}mm", (width/2, best_total_thickness*1.05), ha='center', fontsize=8, fontweight='bold')
+        
+        # Axis formatting
+        ax_wall.set_xlim(0, width*1.35)
+        ax_wall.set_ylim(0, best_total_thickness*1.1)
+        ax_wall.set_title("Best Wall Assembly Layer Thicknesses", fontsize=14, fontweight='bold')
+
+        # remove ticks and spines
+        ax_wall.set_xticks([])
+        ax_wall.set_yticks([])
+        for spine in ax_wall.spines.values():
+            spine.set_visible(False)
+
+        # Add a thin outline around the entire wall
+        outline = Rectangle((0, 0), width, best_total_thickness, fill=False, edgecolor='black', linewidth=1.2)
+        ax_wall.add_patch(outline)
+
+
+        "--- Show Plots --------------------------------------"
+
         plt.show()
-        plt.close()
+        plt.close() # close the plot to free memory
+
+
 
         
 

@@ -79,7 +79,7 @@ def get_mats_of_layer(db, layer_key):
     return all_mats
 
 
-def mutate_child(dataBase, child, child_t, gen, max_gen):
+def mutate_child(dataBase, child, child_t, mut_start, mut_end, gen, max_gen):
     """
     Mutates a random no of materials in the child wall assembly based on the mutation rate
 
@@ -105,9 +105,9 @@ def mutate_child(dataBase, child, child_t, gen, max_gen):
     # logging.info(f"Number of layers in child wall assembly: {num_layers}")
 
     "Adpative mutation: higher mutation rate in initial gens, lower in later gens----------"
-    start_rate = 0.4  # starting mutation rate
-    end_rate = 0.1    # ending mutation rate
-    progress = gen / max_gen
+    start_rate = mut_start # starting mutation rate
+    end_rate = mut_end    # ending mutation rate
+    progress = (gen / max_gen) 
     mutation_rate = start_rate + (end_rate - start_rate) * progress
 
     # how many mats to mutate?
