@@ -28,15 +28,26 @@ Optimize multi-layer wall assemblies using a custom-built Genetic Algorithm to m
 ```bash
 git clone https://github.com/SanyamJpy/GA_Wall_Optimizer.git
 cd GA_Wall_Optimizer
+```
+
 ### 2. Install dependencies (if not installed already)
+
+```bash
 pip install matplotlib
+```
+
 ### 3. Run the algorithm
+
+```bash
 python main.py
+```
 
 ---
 
 ## ⚙️ Customization
+
 Edit main.py to tweak:
+
 - 'population': Number of wall variants per generation (default:30)
 - 'generations': Total number of evolutionary cycles (default:20)
 - 'mut_start': Adaptive mutation start rate (default:0.5)
@@ -44,7 +55,4 @@ Edit main.py to tweak:
 
 ---
 
-##  Improvements and suggestions are welcome :)
-
-
-```
+## Improvements and suggestions are welcome :)
