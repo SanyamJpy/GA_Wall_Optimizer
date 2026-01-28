@@ -55,6 +55,9 @@ def fitness (u_actual, gwp_actual, gen, max_gen):
         # add penalty factor to gwp
         penalized_gwp = gwp_actual + penalty_factor * violation
 
+        # to test for no adpative penalty
+        # penalized_gwp = gwp_actual + violation
+
         fitness = round(1/(penalized_gwp + const), 4)
 
     if debug:
@@ -80,6 +83,6 @@ if __name__ == "__main__":
     print ("gwp_total:",gwp_total)
     print("-"*50)
 
-    fitness (u_total, gwp_total)
+    # fitness (u_total, gwp_total)
 
     

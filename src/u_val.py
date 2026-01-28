@@ -231,6 +231,7 @@ def calc_Mat_amount(mat, mat_t_selc):
 
     # area is 1m2
     area = 1
+    
     # init thickness
     # if its not null, take init thickness
     if mat["thickness_init"] is not None:
