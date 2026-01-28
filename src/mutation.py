@@ -111,8 +111,7 @@ def mutate_child(dataBase, child, child_t, mut_start, mut_end, gen, max_gen):
     mutation_rate = start_rate + (end_rate - start_rate) * progress
 
     # how many mats to mutate?
-    num_to_mutate = int(num_layers * mutation_rate)
-    # print(num_layers * mutation_rate)
+    num_to_mutate = round(num_layers * mutation_rate)
     # print("layers to mutate:", num_to_mutate)
 
     # fallback to at least 1 mutation
