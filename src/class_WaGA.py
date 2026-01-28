@@ -6,6 +6,7 @@ from src.fitness import fitness
 import logging
 import random
 import os
+import time
 # os.environ['MPLBACKEND'] = 'TkAgg'
 # matplotlib.use('TkAgg')
 logging.getLogger('matplotlib').setLevel(logging.WARNING)
@@ -38,7 +39,6 @@ class WallAssemblyGA:
         # State tracking
         self.gen = 0 # current generation
         self.seenWalls = set() # to track unique wall assemblies
-        self.all_results = [] # to store results of all generations
 
         # lists to store history
         self.all_U = []             # list of dicts: {wall_key: u_value}
@@ -59,13 +59,18 @@ class WallAssemblyGA:
 
 
     def create_init_population(self):
-        """Create the initial population of wall assemblies."""
+        """
+        Create the initial population of wall assemblies.
+
+        RETURNS:
+        "init_walls": list of initial wall assemblies (list of lists of dicts)
+        """
 
         init_walls = []
 
         for i in range(self.population):
-            walls = wallAssembly(self.dataBase, i)
-            init_walls.append(walls)
+            wall = wallAssembly(self.dataBase, i)
+            init_walls.append(wall)
 
         return init_walls
     
@@ -220,9 +225,9 @@ class WallAssemblyGA:
         this_gen_fitness_vals = self.all_fitness[gen]
 
         # no of parents to select
-        num_parents = 3
+        num_parents = 2
 
-        # get the top 3 max fitness values
+        # get the top n max fitness values
         sorted_fitness = sorted(this_gen_fitness_vals.items(), key= lambda x: x[1], reverse=True)
         top_parents = sorted_fitness[:num_parents]
         # print("\n")
@@ -378,6 +383,11 @@ class WallAssemblyGA:
             # add parent wall signatures to seenWalls set
             self.wall_to_string(parent, self.all_parents_t[-1][p_idx], True)
 
+            # # pass only 1 parent as it is
+            # if p_idx >0:
+            #     print("Elitism: Added only 1 parent wall to next generation as is.")
+            #     break
+
         # loop until we have desired population of unique walls
         attempts = 0
         max_attempts = self.population * 50  # to avoid infinite loop
@@ -510,8 +520,23 @@ class WallAssemblyGA:
         """
         logging.info("======= Starting Wall Assembly Genetic Algorithm =======")
 
+        "Record Time elapsed"
+        # start the clock
+        start_time = time.time()
+
+        # run generations
         for gen in range(self.generations):
             self.run_generation(gen)
+
+        # stop the clock
+        end_time = time.time()
+
+        # calculate time elapsed
+        time_elapsed = end_time - start_time
+
+        # print time elapsed
+        print("\n")
+        print(f"Time elapsed: {time_elapsed:.2f} seconds")
 
         print("\n")
         logging.info("=================Genetic Algorithm Completed =====================")
