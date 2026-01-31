@@ -13,6 +13,7 @@ logging.getLogger('matplotlib').setLevel(logging.WARNING)
 logging.getLogger('PngImagePlugin').setLevel(logging.WARNING)
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import numpy as np
 
 
 class WallAssemblyGA:
@@ -662,7 +663,14 @@ class WallAssemblyGA:
         # start stacking from y=0
         current_y = 0
         layer_colors = plt.get_cmap("tab20")
-        width = 5  # fixed width for all layers
+        width = 3  # fixed width for all layers
+        x_text = width + width * 0.05  # x-position for text (right side)
+        n_layers = len(best_allLayers_t)
+        # precalc y-positions
+        y_top = best_total_thickness * 0.95
+        y_bottom = best_total_thickness * 0.05
+        # evenly spaced y-positions for text
+        y_positions = np.linspace(y_bottom, y_top, n_layers)
 
         for idx, layer in enumerate(best_allLayers_t):
             color = layer_colors(idx%20)
@@ -671,14 +679,34 @@ class WallAssemblyGA:
             rect = Rectangle((0, current_y), width, thick, color=color, edgecolor='black', linewidth=1)
             ax_wall.add_patch(rect)
 
-            # Text on right
-            y_center = current_y + thick / 2
-            if idx == 0:
-                ax_wall.text(width + width*0.05, y_center-0.05, f"Layer-{idx+1}:{mat}: {thick*1000}mm (Interior)", va='center',ha='left', fontsize=8)
-            else:
-                ax_wall.text(width + width*0.05, y_center, f"Layer-{idx+1}:{mat}: {thick*1000}mm", va='center',ha='left', fontsize=8)
+            # # Text on right
+            # y_center = current_y + thick / 2
+            # # y_center = current_y + 0.1
+            # if idx==0:
+            #     ax_wall.text(width + width*0.05, y_center-0.05, f"Layer-{idx+1}:{mat}: {thick*1000}mm (Interior)", va='center',ha='left', fontsize=8, color= color)
+            # else:
+            #     ax_wall.text(width + width*0.05, y_center, f"Layer-{idx+1}:{mat}: {thick*1000}mm", va='center',ha='left', fontsize=8, color= color)
 
-            # update current_y for next layer
+            # # update current_y for next layer
+            # current_y += thick
+
+            # get the respective idx pos for the text
+            y_text = y_positions[idx] 
+            # Add label with consistent style
+            label = f"Layer-{idx+1}: {mat}: {thick*1000:.1f}mm"
+
+            if idx == 0:
+                label += " (Interior)"
+
+            ax_wall.text(
+                x_text, y_text,
+                label,
+                va="center", ha="left",
+                fontsize=8, fontweight="normal", wrap=True, color=color,
+                clip_on=False  # prevents clipping outside plot
+            )
+
+            # Update current_y for next rectangle
             current_y += thick
 
         # Annotate total thickness at the top center
@@ -687,7 +715,7 @@ class WallAssemblyGA:
         # Axis formatting
         ax_wall.set_xlim(0, width*1.35)
         ax_wall.set_ylim(0, best_total_thickness*1.1)
-        ax_wall.set_title("Best Wall Assembly Layer Thicknesses", fontsize=14, fontweight='bold')
+        ax_wall.set_title("Best Wall Assembly Layers", fontsize=14, fontweight='bold')
 
         # remove ticks and spines
         ax_wall.set_xticks([])
@@ -698,7 +726,6 @@ class WallAssemblyGA:
         # Add a thin outline around the entire wall
         outline = Rectangle((0, 0), width, best_total_thickness, fill=False, edgecolor='black', linewidth=1.2)
         ax_wall.add_patch(outline)
-
 
         "--- Show Plots --------------------------------------"
 
