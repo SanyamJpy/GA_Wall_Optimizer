@@ -140,7 +140,7 @@ def calc_R_val(wallAssembly, gen=0, childWalls_t=[], wall_idx=0):
 
         "Priority: Use lambda to calc r-value if available; else use r-value directly"
         # if (mat['r-value']== None or mat['r-value'] == 0.0) and mat['lambda'] != 0.0 :
-        if mat['lambda'] != 0.0 :
+        if mat['lambda'] != 0.0 and mat['lambda'] is not None:
             
             # print("using lambda....")
             " r = thickness / lambda "
@@ -160,11 +160,10 @@ def calc_R_val(wallAssembly, gen=0, childWalls_t=[], wall_idx=0):
                 print("r:",mat["r-value"])
             # print("--"*20)
 
-        """
-        Also need to check if no r-val is provided
-        dann, use 1/u-val and add to r_total------------------------------------------------------
+            # if nothing defined, take 0
+        else:
+            r_total += 0.0
 
-        """
 
         # logging.info("matt ", mat_t)
         mat_amt = calc_Mat_amount(mat, mat_t)
