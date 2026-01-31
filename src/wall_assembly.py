@@ -15,6 +15,7 @@ def wallAssembly(dataBase, index=0):
 
     # create  lists for all the materials of each layer
     mat1_list = []
+    mat2_list = []
     mat3_list = []
     mat4_list = []
     mat5_list = []
@@ -59,10 +60,15 @@ def wallAssembly(dataBase, index=0):
             for material in dataBase["Components"][l]:
                 mat8_list.append(material)
 
+        elif l == "02_IfcMember-vapour":
+            for material in dataBase["Components"][l]:
+                mat2_list.append(material)
+
     # print(mat1_list)
 
     # #select random material Name from list -> "string"
     lay_1_mat = mat1_list[random.randint(0, len(mat1_list)-1)]
+    lay_2_mat = mat2_list[random.randint(0, len(mat2_list)-1)]
     lay_3_mat = mat3_list[random.randint(0, len(mat3_list)-1)]
     lay_4_mat = mat4_list[random.randint(0, len(mat4_list)-1)]
     lay_5_mat = mat5_list[random.randint(0, len(mat5_list)-1)]
@@ -72,12 +78,13 @@ def wallAssembly(dataBase, index=0):
 
 
 
-    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 6_Mat: {lay_6_mat} \nLayer 8_Mat: {lay_8_mat} \nLayer 9_Mat: {lay_9_mat}")
+    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 2_Mat: {lay_2_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 6_Mat: {lay_6_mat} \nLayer 8_Mat: {lay_8_mat} \nLayer 9_Mat: {lay_9_mat}")
     print("="*100)
 
-    # create a wall assem
+    "create a wall assem-------------------------------------------"
     wall_assem = [
         dataBase["Components"]["01_wallFinishInside"][lay_1_mat],
+        dataBase["Components"]["02_IfcMember-vapour"][lay_2_mat],
         dataBase["Components"]["03_woodBasedBoard"][lay_3_mat],
         dataBase["Components"]["04_wallInsulationInside"][lay_4_mat],
         dataBase["Components"]["05_PrimaryStructure"][lay_5_mat],
@@ -86,11 +93,6 @@ def wallAssembly(dataBase, index=0):
         dataBase["Components"]["09_wallFinishFacade"][lay_9_mat]
     ]
 
-    # print(wall_assem[0])
-    
-    # print("Wall Assem: {}".format(wall_assem))
-
-    
 
     return wall_assem
 
