@@ -33,7 +33,7 @@ cd GA_Wall_Optimizer
 ### 2. Install dependencies (if not installed already)
 
 ```bash
-pip install matplotlib
+pip install matplotlib numpy
 ```
 
 ### 3. Run the algorithm
