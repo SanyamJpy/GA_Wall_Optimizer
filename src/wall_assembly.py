@@ -20,6 +20,7 @@ def wallAssembly(dataBase, index=0):
     mat4_list = []
     mat5_list = []
     mat6_list = []
+    mat7_list = []
     mat8_list = []
     mat9_list = []
     # list to store all wall layers
@@ -64,6 +65,11 @@ def wallAssembly(dataBase, index=0):
             for material in dataBase["Components"][l]:
                 mat2_list.append(material)
 
+        elif l == "07_IfcMember_vapour":
+            for material in dataBase["Components"][l]:
+                mat7_list.append(material)
+
+        
     # print(mat1_list)
 
     # #select random material Name from list -> "string"
@@ -73,12 +79,13 @@ def wallAssembly(dataBase, index=0):
     lay_4_mat = mat4_list[random.randint(0, len(mat4_list)-1)]
     lay_5_mat = mat5_list[random.randint(0, len(mat5_list)-1)]
     lay_6_mat = mat6_list[random.randint(0, len(mat6_list)-1)]
+    lay_7_mat = mat7_list[random.randint(0, len(mat7_list)-1)]
     lay_8_mat = mat8_list[random.randint(0, len(mat8_list)-1)]
     lay_9_mat = mat9_list[random.randint(0, len(mat9_list)-1)]
 
 
 
-    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 2_Mat: {lay_2_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 6_Mat: {lay_6_mat} \nLayer 8_Mat: {lay_8_mat} \nLayer 9_Mat: {lay_9_mat}")
+    logging.info(f"Wall-{index}\nSelected Materials: \nLayer 1_Mat: {lay_1_mat} \nLayer 2_Mat: {lay_2_mat} \nLayer 3_Mat: {lay_3_mat} \nLayer 4_Mat: {lay_4_mat} \nLayer 5_Mat: {lay_5_mat} \nLayer 6_Mat: {lay_6_mat} \nLayer 7_Mat: {lay_7_mat} \nLayer 8_Mat: {lay_8_mat} \nLayer 9_Mat: {lay_9_mat}")
     print("="*100)
 
     "create a wall assem-------------------------------------------"
@@ -89,6 +96,7 @@ def wallAssembly(dataBase, index=0):
         dataBase["Components"]["04_wallInsulationInside"][lay_4_mat],
         dataBase["Components"]["05_PrimaryStructure"][lay_5_mat],
         dataBase["Components"]["06_secondaryInsulation"][lay_6_mat],
+        dataBase["Components"]["07_IfcMember_vapour"][lay_7_mat],
         dataBase["Components"]["08_battens_rainscreen"][lay_8_mat],
         dataBase["Components"]["09_wallFinishFacade"][lay_9_mat]
     ]

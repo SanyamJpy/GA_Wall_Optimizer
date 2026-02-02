@@ -407,15 +407,15 @@
       }
     },
     "03_woodBasedBoard": {
-      "EGGER_OSB_Board": {
-        "name": "EGGER_OSB_Board",
+      "01_EGGER_OSB_Board": {
+        "name": "01_EGGER_OSB_Board",
         "id": "03_01",
         "factor": 1,
         "u-value": 3.24,
         "u-value_unit": "W/m2.K",
         "r-value": 0.138,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.13,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 9,
         "thickness_range": [
@@ -430,15 +430,15 @@
         "D": -475
       },
 
-      "MAGOXX_Board": {
-        "name": "MAGOXX_Board",
+      "02_MAGOXX_Board": {
+        "name": "02_MAGOXX_Board",
         "id": "03_02",
         "factor": 1.21,
         "u-value": 3.93,
         "u-value_unit": "W/m2.K",
         "r-value": 0.084,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.21,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 9,
         "thickness_range": [],
@@ -454,15 +454,15 @@
         "D": -0.028
       },
 
-      "Plywood": {
-        "name": "Plywood",
+      "03_Plywood": {
+        "name": "03_Plywood",
         "id": "03_03",
         "factor": 1,
         "u-value": 3.24,
         "u-value_unit": "W/m2.K",
         "r-value": 0.138,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.13,
         "lambda-value_unit": "W/m.K",
         "thickness_init": null,
         "thickness_range": [2.4, 3, 4, 5, 6, 9, 12, 15, 18, 21, 24, 30, 34],
@@ -477,15 +477,15 @@
         "D": -220
       },
 
-      "Tru_spec": {
-        "name": "Tru_spec",
+      "04_Tru_spec": {
+        "name": "04_Tru_spec",
         "id": "03_04",
         "factor": 2.22,
         "u-value": 7.22,
         "u-value_unit": "W/m2.K",
         "r-value": 0.138,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.14,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 15.8,
         "thickness_range": [
@@ -504,15 +504,15 @@
         "D": 0.0
       },
 
-      "Spanplatte_roh": {
-        "name": "Spanplatte_roh",
+      "05_Spanplatte_roh": {
+        "name": "05_Spanplatte_roh",
         "id": "03_05",
         "factor": 2.05,
         "u-value": 6.67,
         "u-value_unit": "W/m2.K",
         "r-value": 0.15,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.12,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 19,
         "thickness_range": [
@@ -527,15 +527,15 @@
         "D": -360
       },
 
-      "Cement_Bonded_Particle_Board": {
-        "name": "Cement_Bonded_Particle_Board",
+      "06_Cement_Bonded_Particle_Board": {
+        "name": "06_Cement_Bonded_Particle_Board",
         "id": "03_06",
         "factor": 3.94,
         "u-value": 12.78,
         "u-value_unit": "W/m2.K",
         "r-value": 0.078,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.23,
         "lambda-value_unit": "W/m.K",
         "thickness_init": null,
         "thickness_range": [8, 10, 12, 16, 18, 20, 22, 24, 25, 28],
@@ -549,15 +549,15 @@
         "D": -25.4
       },
 
-      "Cem-Rock_eXtreme": {
-        "name": "Cem-Rock_eXtreme",
+      "07_Cem-Rock_eXtreme": {
+        "name": "07_Cem-Rock_eXtreme",
         "id": "03_07",
         "factor": 1.1,
         "u-value": 2.22,
         "u-value_unit": "W/m2.K",
         "r-value": 0.138,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.13,
         "lambda-value_unit": "W/m.K",
         "thickness_init": null,
         "thickness_range": [6, 12, 20],
@@ -574,15 +574,15 @@
         "D": -4.04
       },
 
-      "esb-Platten": {
-        "name": "esb-Platten",
+      "08_esb-Platten": {
+        "name": "08_esb-Platten",
         "id": "03_08",
         "factor": 2.05,
         "u-value": 6.67,
         "u-value_unit": "W/m2.K",
         "r-value": 0.15,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.12,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 19,
         "thickness_range": [
@@ -600,39 +600,36 @@
         "D": -273
       },
 
-      "fermacell_Powerpanel_H2O": {
-        "name": "fermacell_Powerpanel_H2O",
+      "09_fermacell_Powerpanel_H2O": {
+        "name": "09_fermacell_Powerpanel_H2O",
         "id": "03_09",
         "factor": 2.91,
         "u-value": 9.44,
         "u-value_unit": "W/m2.K",
         "r-value": 0.106,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.17,
         "lambda-value_unit": "W/m.K",
         "thickness_init": 12.5,
         "thickness_range": [10, 12.5, 15, 18, 20, 25],
         "density": 1000,
         "unit": "area",
         "A1-A3": 9.74,
-        "A4": 0.107,
         "A5": 0.634,
-        "C1": 0.0076,
         "C2": 0.053,
         "C3": 0.032,
-        "C4": 0.189,
         "D": 0.237
       },
 
-      "Birch_plywood_phenol_coated": {
-        "name": "Birch_plywood_phenol_coated",
+      "10_Birch_plywood_phenol_coated": {
+        "name": "10_Birch_plywood_phenol_coated",
         "id": "03_10",
         "factor": 2.22,
         "u-value": 7.22,
         "u-value_unit": "W/m2.K",
         "r-value": 0.138,
         "r-value_unit": "m2.K/W",
-        "lambda": 0.0,
+        "lambda": 0.13,
         "lambda-value_unit": "W/m.K",
         "thickness_init": null,
         "thickness_range": [
@@ -644,7 +641,6 @@
         "A5": 3.47,
         "C2": 2.6,
         "C3": 6.15,
-        "C4": 0.036,
         "D": -655
       }
     },
@@ -1276,6 +1272,208 @@
         "C3": 0.0000474,
         "C4": 0.000236,
         "D": -0.236
+      }
+    },
+    "07_IfcMember_vapour": {
+      "1_DuPont_Tyvek_DrainWrap": {
+        "name": "1_DuPont_Tyvek_DrainWrap",
+        "id": "07_01",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.183,
+        "thickness_range": [0.135, 0.157, 0.183],
+        "density": 510.38,
+        "unit": "m2",
+        "A1-A3": 0.4918,
+        "A5": 0.0125,
+        "C2": 0.00157,
+        "C3": 0.0,
+        "D": 0.0
+      },
+      "2_KOESTER_TPO_Pro_1_5": {
+        "name": "2_KOESTER_TPO_Pro_1_5",
+        "id": "07_02",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 1.5,
+        "thickness_range": [1.5],
+        "density": 1003.3,
+        "unit": "m2",
+        "A1-A3": 1.61,
+        "A5": 0.0667,
+        "C2": 0.02724,
+        "C3": 0.00338,
+        "D": -0.963
+      },
+      "3_SOPREMA_SOPRASEAL_STICK_VP": {
+        "name": "3_SOPREMA_SOPRASEAL_STICK_VP",
+        "id": "07_03",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.6,
+        "thickness_range": [0.6],
+        "density": 576.67,
+        "unit": "m2",
+        "A1-A3": 1.19,
+        "A5": 0.0,
+        "C2": 0.0,
+        "C3": 0.0,
+        "D": 0.0
+      },
+      "4_SIGA_Majrex_200": {
+        "name": "4_SIGA_Majrex_200",
+        "id": "07_04",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.3,
+        "thickness_range": [0.3],
+        "density": 493.0,
+        "unit": "m2",
+        "A1-A3": 1.17,
+        "A5": 0.0504,
+        "C2": 0.000909,
+        "C3": 0.375,
+        "D": -0.245
+      },
+      "5_ALWITRA_EVALON_EVA_WORST_CASE": {
+        "name": "5_ALWITRA_EVALON_EVA_WORST_CASE",
+        "id": "07_05",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 2.5,
+        "thickness_range": [2.1, 2.4, 2.5],
+        "density": 900,
+        "unit": "m2",
+        "A1-A3": 7.17,
+        "A5": 0.506,
+        "C2": 0.0218,
+        "C3": 0.0,
+        "D": -3.41
+      },
+      "6_SIKA_SikaMembran_Outdoor_Plus": {
+        "name": "6_SIKA_SikaMembran_Outdoor_Plus",
+        "id": "07_06",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.6,
+        "thickness_range": [0.6],
+        "density": 1400,
+        "unit": "m2",
+        "A1-A3": 2.21,
+        "A5": 0.0,
+        "C2": 0.0159,
+        "C3": 2.27,
+        "D": -4.02
+      },
+      "7_SCHLUETER_KERDI_200": {
+        "name": "7_SCHLUETER_KERDI_200",
+        "id": "07_07",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.2,
+        "thickness_range": [0.2],
+        "density": 1605,
+        "unit": "m2",
+        "A1-A3": 1.21,
+        "A5": 0.0,
+        "C2": 0.00157,
+        "C3": 0.863,
+        "D": -0.407
+      },
+      "8_PROCLIMA_SOLITEX_FRONTA_QUATTRO": {
+        "name": "8_PROCLIMA_SOLITEX_FRONTA_QUATTRO",
+        "id": "07_08",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.6,
+        "thickness_range": [0.6],
+        "density": 300,
+        "unit": "m2",
+        "A1-A3": 1.54,
+        "A5": 0.0,
+        "C2": 0.00448,
+        "C3": 2.76,
+        "D": -2.44
+      },
+      "9_SAARGUMMI_NovoProof_EPDM_AVERAGE_recycling": {
+        "name": "9_SAARGUMMI_NovoProof_EPDM_AVERAGE_recycling",
+        "id": "07_09",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 1.5,
+        "thickness_range": [0.6, 0.75, 1.0, 1.3, 1.5, 2.0, 2.5],
+        "density": 1605,
+        "unit": "m2",
+        "A1-A3": 4.79,
+        "A5": 0.69,
+        "C2": 0.00708,
+        "C3": 3.16,
+        "D": -2.03
+      },
+      "10_FATRA_STAFOL_914": {
+        "name": "10_FATRA_STAFOL_914",
+        "id": "07_10",
+        "factor": 1,
+        "u-value": null,
+        "u-value_unit": "W/m2.K",
+        "r-value": null,
+        "r-value_unit": "m2.K/W",
+        "lambda": null,
+        "lambda-value_unit": "W/m.K",
+        "thickness_init": 0.8,
+        "thickness_range": [0.5, 0.6, 0.7, 1.0, 1.2, 1.5],
+        "density": 1164,
+        "unit": "m2",
+        "A1-A3": 1.89,
+        "A5": 0.0375,
+        "C2": 0.00751,
+        "C3": 1.62,
+        "D": -0.507
       }
     },
     "08_battens_rainscreen": {
