@@ -456,6 +456,26 @@ class WallAssemblyGA:
             "all_layers_t": all_layers_t,
             "total_best_wall_thickness": total_wall_thickness
         }
+    
+    def print_best_wall_info(self):
+        """
+        Takes the best wall information and prints it to console
+        """
+        bw_info = self.get_best_wall_info()
+
+        print("\n")
+        logging.info("===============best_wall_info================")
+        print(f"Found in generation: {bw_info["best_gen"]}")
+        print(f"U-value: {bw_info["best_u"]}")
+        print(f"GWP: {bw_info["best_gwp"]}")
+        print(f"Total Thickness: {bw_info["total_best_wall_thickness"] * 1000}mm") 
+        print("Wall Layers:")
+        for layer_idx, layer in enumerate(bw_info['all_layers_t']):
+            for mat, mat_t in layer.items():
+                print(f"Layer {layer_idx+1}: {mat}: {mat_t * 1000}mm")
+
+        return None
+        
 
     def run_generation(self,gen):
         """
