@@ -466,8 +466,8 @@ class WallAssemblyGA:
         print("\n")
         logging.info("===============best_wall_info================")
         print(f"Found in generation: {bw_info["best_gen"]}")
-        print(f"U-value: {bw_info["best_u"]}")
-        print(f"GWP: {bw_info["best_gwp"]}")
+        print(f"U-value: {bw_info["best_u"]:.3f} W/m2K")
+        print(f"GWP: {bw_info["best_gwp"]:.3f} kgCO2eq/m2")
         print(f"Total Thickness: {bw_info["total_best_wall_thickness"] * 1000}mm") 
         print("Wall Layers:")
         for layer_idx, layer in enumerate(bw_info['all_layers_t']):
@@ -645,7 +645,7 @@ class WallAssemblyGA:
 
         ax_gwp.scatter(best_gen, best_gwp, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
 
-        ax_gwp.annotate(f"Best: {best_wall_key}\n GWP= {best_gwp}", (best_gen, best_gwp), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
+        ax_gwp.annotate(f"Best: {best_wall_key}\n GWP= {best_gwp:.3f} kgCO2eq/m2", (best_gen, best_gwp), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
 
         # Final formatting
         ax_gwp.set_xticks(range(generations))
@@ -669,7 +669,7 @@ class WallAssemblyGA:
 
         ax_u.scatter(best_gen, best_U, color='gold', marker='*', s=200, edgecolors='black', linewidth=2, zorder= 5)
 
-        ax_u.annotate(f"Best: {best_wall_key}\n U= {best_U}", (best_gen, best_U), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
+        ax_u.annotate(f"Best: {best_wall_key}\n U= {best_U:.3f} W/m2K", (best_gen, best_U), textcoords="offset points", xytext=(0,20), ha='center', fontsize=8, fontweight='bold', color= "darkred")
 
         # Final formatting
         ax_u.set_xticks(range(generations))
